@@ -14,30 +14,33 @@ namespace delaunay
   };
 
   template <typename T>
-  class Triangle
+  struct Triangle
   {
-  public:
-    Triangle(Point2D<T> const &p1,
-	     Point2D<T> const &p2,
-	     Point2D<T> const &p3);
+    Triangle(Point2D<T> *p1,
+	     Point2D<T> *p2,
+	     Point2D<T> *p3);
 
     void print() const;
-    
-    int containsPoint(Point2D<T> const &p) const;
-    
-  private:
-    Point2D<T> m_corners[3];
 
-    Triangle<T> *m_daughters[3];
-    Triangle<T> *m_neighbors[3];
+    int containsPoint(Point2D<T> const &p) const;
+
+    Point2D<T> *corners[3];
+    Triangle<T> *daughters[3];
+    Triangle<T> *neighbors[3];
   };
 
   template <typename T>
-  class Delaunay
+  class Triangulation
   {
+  public:
+    Triangulation(Point2D<T> const *points, size_t nPoints);
+
   private:
+    //Triangle<T> *findTriangle(Point2D<T> const &point);
+
     std::vector< Point2D<T> > m_points;
     std::vector< Triangle<T> > m_triangles;
+    delaunay::Point2D<T> m_virtumals[3];
   };
 }
 
