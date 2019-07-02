@@ -1,6 +1,6 @@
 CXX = /usr/bin/c++
 
-CFLAGS = -std=c++11
+CFLAGS = -std=c++11 -Wall
 
 OBJS = delaunay.o
 
