@@ -5,25 +5,27 @@
 #include "delaunay.hpp"
 
 
+namespace dl = delaunay;
+
 namespace delaunay
 {
   template <typename T>
-  delaunay::Point2D<T> operator-(delaunay::Point2D<T> const &lhs, delaunay::Point2D<T> const &rhs)
+  Point2D<T> operator-(Point2D<T> const &lhs, Point2D<T> const &rhs)
   {
-    return delaunay::Point2D<T>{lhs.x - rhs.x, lhs.y - rhs.y};
+    return Point2D<T>{lhs.x - rhs.x, lhs.y - rhs.y};
   }
 
   template <typename T>
-  T crossprod(delaunay::Point2D<T> const &lhs, delaunay::Point2D<T> const &rhs)
+  T crossprod(Point2D<T> const &lhs, Point2D<T> const &rhs)
   {
     return lhs.x * rhs.y - lhs.y * rhs.x;
   }
 }
 
 template <typename T>
-delaunay::Triangle<T>::Triangle(delaunay::Point2D<T> *p1,
-				delaunay::Point2D<T> *p2,
-				delaunay::Point2D<T> *p3)
+dl::Triangle<T>::Triangle(dl::Point2D<T> *p1,
+                          dl::Point2D<T> *p2,
+                          dl::Point2D<T> *p3)
   : corners{p1, p2, p3},
     daughters{nullptr, nullptr, nullptr},
     neighbors{nullptr, nullptr, nullptr}
@@ -41,7 +43,7 @@ delaunay::Triangle<T>::Triangle(delaunay::Point2D<T> *p1,
 }
 
 template <typename T>
-void delaunay::Triangle<T>::print() const
+void dl::Triangle<T>::print() const
 {
   std::cout << "Point 1: " << corners[0]->x << " " << corners[0]->y << "\n";
   std::cout << "Point 2: " << corners[1]->x << " " << corners[1]->y << "\n";
@@ -49,11 +51,11 @@ void delaunay::Triangle<T>::print() const
 }
 
 template <typename T>
-int delaunay::Triangle<T>::containsPoint(delaunay::Point2D<T> const &p) const
+int dl::Triangle<T>::containsPoint(dl::Point2D<T> const &p) const
 {
   T crossp[3] = {crossprod(*corners[1] - *corners[0], p - *corners[0]),
-		 crossprod(*corners[2] - *corners[1], p - *corners[1]),
-		 crossprod(*corners[0] - *corners[2], p - *corners[2])};
+                 crossprod(*corners[2] - *corners[1], p - *corners[1]),
+                 crossprod(*corners[0] - *corners[2], p - *corners[2])};
   if (crossp[0] < 0 || crossp[1] < 0 || crossp[2] < 0) {
     return 0;  // outside
   } else if (crossp[0] == 0) {
@@ -68,7 +70,7 @@ int delaunay::Triangle<T>::containsPoint(delaunay::Point2D<T> const &p) const
 }
 
 template <typename T>
-delaunay::Triangulation<T>::Triangulation(delaunay::Point2D<T> const *points, size_t nPoints)
+dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints)
 {
   // Error checking
   if (nPoints < 3) {
@@ -84,29 +86,29 @@ delaunay::Triangulation<T>::Triangulation(delaunay::Point2D<T> const *points, si
   // Figure out the bounding box of the input points
   T minx, maxx, miny, maxy;
   std::tie(minx, maxx) = std::minmax_element(m_points.begin(), m_points.end(),
-					     [](delaunay::Point2D<T> const &a,
-						delaunay::Point2D<T> const &b) {return a.x < b.x;});
+                                             [](dl::Point2D<T> const &a,
+                                                dl::Point2D<T> const &b) {return a.x < b.x;});
   std::tie(miny, maxy) = std::minmax_element(m_points.begin(), m_points.end(),
-					     [](delaunay::Point2D<T> const &a,
-						delaunay::Point2D<T> const &b) {return a.y < b.y;});
+                                             [](dl::Point2D<T> const &a,
+                                                dl::Point2D<T> const &b) {return a.y < b.y;});
 
   // Make a root triangle much bigger than the set of points
-  delaunay::Point2D<T> ctr({0.5 * (minx + maxx), 0.5 * (miny + maxy)});
+  dl::Point2D<T> ctr({0.5 * (minx + maxx), 0.5 * (miny + maxy)});
   T radius = 10000 * std::max(maxx - minx, maxy - miny);
-  m_virtumals = {ctr + delaunay::Point2D<T>{0, radius},
-		 ctr + delaunay::Point2D<T>{-0.5 * radius, -sqrt(3)/2 * radius},
-		 ctr + delaunay::Point2D<T>{0.5 * radius, -sqrt(3)/2 * radius}};
-  m_triangles.push_back(delaunay::Triangle<T>(&m_virtumals[0], &m_virtumals[1], &m_virtumals[2]));
+  m_virtumals = {ctr + dl::Point2D<T>{0, radius},
+                 ctr + dl::Point2D<T>{-0.5 * radius, -sqrt(3)/2 * radius},
+                 ctr + dl::Point2D<T>{0.5 * radius, -sqrt(3)/2 * radius}};
+  m_triangles.push_back(dl::Triangle<T>(&m_virtumals[0], &m_virtumals[1], &m_virtumals[2]));
 
   // Now add points to the triangulation
   for (auto const &p: m_points) {
-    delaunay::Triangle<T> *mother = findTriangle(p);
+    dl::Triangle<T> *mother = findTriangle(p);
     m_triangles.emplace_back(*p, *mother->corners[0], *mother->corners[1]);
     m_triangles.emplace_back(*p, *mother->corners[1], *mother->corners[2]);
     m_triangles.emplace_back(*p, *mother->corners[2], *mother->corners[0]);
-    delaunay::Triangle<T> *daughters[3] = {&m_triangles[m_triangles.size() - 3],
-					   &m_triangles[m_triangles.size() - 2],
-					   &m_triangles[m_triangles.size() - 1]};
+    dl::Triangle<T> *daughters[3] = {&m_triangles[m_triangles.size() - 3],
+                                     &m_triangles[m_triangles.size() - 2],
+                                     &m_triangles[m_triangles.size() - 1]};
     std::copy(daughters, daughters + 3, mother->daughters);
     daughters[0].neighbors[0] = mother->neighbors[2];
     daughters[1].neighbors[0] = mother->neighbors[0];
@@ -122,10 +124,10 @@ delaunay::Triangulation<T>::Triangulation(delaunay::Point2D<T> const *points, si
 
 int main(void)
 {
-  delaunay::Point2D<double> p1{1, 2};
-  delaunay::Point2D<double> p2{2, -1};
-  delaunay::Point2D<double> p3{-2, 1};
-  delaunay::Triangle<double> triangle(&p1, &p2, &p3);
+  dl::Point2D<double> p1{1, 2};
+  dl::Point2D<double> p2{2, -1};
+  dl::Point2D<double> p3{-2, 1};
+  dl::Triangle<double> triangle(&p1, &p2, &p3);
 
   triangle.print();
 
