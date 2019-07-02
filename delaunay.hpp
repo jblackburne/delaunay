@@ -36,7 +36,7 @@ namespace delaunay
     Triangulation(Point2D<T> const *points, size_t nPoints);
 
   private:
-    //Triangle<T> *findTriangle(Point2D<T> const &point);
+    Triangle<T> *findTriangle(Point2D<T> const &point);
 
     std::vector< Point2D<T> > m_points;
     std::vector< Triangle<T> > m_triangles;

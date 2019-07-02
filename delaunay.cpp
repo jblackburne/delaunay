@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <stack>
 #include <cmath>
 
 #include "delaunay.hpp"
@@ -120,6 +121,32 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
     daughters[1].neighbors[2] = daughters[0];
     daughters[2].neighbors[2] = daughters[1];
   }
+}
+
+template <typename T>
+dl::Triangle<T> *dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
+{
+  std::stack<dl::Triangle<T> *> tristack;
+  tristack.push(&m_triangles[0]);
+  while (!tristack.empty()) {
+    dl::Triangle<T> *tri = tristack.top();
+    tristack.pop();
+    if (tri->containsPoint(point) != 0) {
+      bool isLeaf = true;
+      for (size_t i=0; i<3; ++i) {
+        if (tri->daughters[i]) {
+          tristack.push(tri->daughters[i]);
+          isLeaf = false;
+        }
+      }
+      if (isLeaf) {
+        return tri;
+      }
+    }
+  }
+
+  // No enclosing "active" (i.e., leaf node) triangle was found
+  return nullptr;
 }
 
 int main(void)
