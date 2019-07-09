@@ -17,6 +17,12 @@ namespace delaunay
   }
 
   template <typename T>
+  Point2D<T> operator+(Point2D<T> const &lhs, Point2D<T> const &rhs)
+  {
+    return Point2D<T>{lhs.x + rhs.x, lhs.y + rhs.y};
+  }
+
+  template <typename T>
   T crossprod(Point2D<T> const &lhs, Point2D<T> const &rhs)
   {
     return lhs.x * rhs.y - lhs.y * rhs.x;
@@ -85,7 +91,7 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
   m_points.assign(points, points + nPoints);
 
   // Figure out the bounding box of the input points
-  T minx, maxx, miny, maxy;
+  typename std::vector< Point2D<T> >::const_iterator minx, maxx, miny, maxy;
   std::tie(minx, maxx) = std::minmax_element(m_points.begin(), m_points.end(),
                                              [](dl::Point2D<T> const &a,
                                                 dl::Point2D<T> const &b) {return a.x < b.x;});
@@ -94,32 +100,32 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
                                                 dl::Point2D<T> const &b) {return a.y < b.y;});
 
   // Make a root triangle much bigger than the set of points
-  dl::Point2D<T> ctr({0.5 * (minx + maxx), 0.5 * (miny + maxy)});
-  T radius = 10000 * std::max(maxx - minx, maxy - miny);
-  m_virtumals = {ctr + dl::Point2D<T>{0, radius},
-                 ctr + dl::Point2D<T>{-0.5 * radius, -sqrt(3)/2 * radius},
-                 ctr + dl::Point2D<T>{0.5 * radius, -sqrt(3)/2 * radius}};
+  dl::Point2D<T> ctr({0.5 * (minx->x + maxx->x), 0.5 * (miny->y + maxy->y)});
+  T radius = 10000 * std::max(maxx->x - minx->x, maxy->y - miny->y);
+  m_virtumals[0] = ctr + dl::Point2D<T>{0, radius};
+  m_virtumals[1] = ctr + dl::Point2D<T>{-0.5 * radius, -sqrt(3)/2 * radius};
+  m_virtumals[2] = ctr + dl::Point2D<T>{0.5 * radius, -sqrt(3)/2 * radius};
   m_triangles.push_back(dl::Triangle<T>(&m_virtumals[0], &m_virtumals[1], &m_virtumals[2]));
 
   // Now add points to the triangulation
-  for (auto const &p: m_points) {
+  for (auto &p: m_points) {
     dl::Triangle<T> *mother = findTriangle(p);
-    m_triangles.emplace_back(*p, *mother->corners[0], *mother->corners[1]);
-    m_triangles.emplace_back(*p, *mother->corners[1], *mother->corners[2]);
-    m_triangles.emplace_back(*p, *mother->corners[2], *mother->corners[0]);
+    m_triangles.push_back(dl::Triangle<T>(&p, mother->corners[0], mother->corners[1]));
+    m_triangles.push_back(dl::Triangle<T>(&p, mother->corners[1], mother->corners[2]));
+    m_triangles.push_back(dl::Triangle<T>(&p, mother->corners[2], mother->corners[0]));
     dl::Triangle<T> *daughters[3] = {&m_triangles[m_triangles.size() - 3],
                                      &m_triangles[m_triangles.size() - 2],
                                      &m_triangles[m_triangles.size() - 1]};
     std::copy(daughters, daughters + 3, mother->daughters);
-    daughters[0].neighbors[0] = mother->neighbors[2];
-    daughters[1].neighbors[0] = mother->neighbors[0];
-    daughters[2].neighbors[0] = mother->neighbors[1];
-    daughters[0].neighbors[1] = daughters[1];
-    daughters[1].neighbors[1] = daughters[2];
-    daughters[2].neighbors[1] = daughters[0];
-    daughters[0].neighbors[2] = daughters[2];
-    daughters[1].neighbors[2] = daughters[0];
-    daughters[2].neighbors[2] = daughters[1];
+    daughters[0]->neighbors[0] = mother->neighbors[2];
+    daughters[1]->neighbors[0] = mother->neighbors[0];
+    daughters[2]->neighbors[0] = mother->neighbors[1];
+    daughters[0]->neighbors[1] = daughters[1];
+    daughters[1]->neighbors[1] = daughters[2];
+    daughters[2]->neighbors[1] = daughters[0];
+    daughters[0]->neighbors[2] = daughters[2];
+    daughters[1]->neighbors[2] = daughters[0];
+    daughters[2]->neighbors[2] = daughters[1];
   }
 }
 
@@ -151,10 +157,9 @@ dl::Triangle<T> *dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
 
 int main(void)
 {
-  dl::Point2D<double> p1{1, 2};
-  dl::Point2D<double> p2{2, -1};
-  dl::Point2D<double> p3{-2, 1};
-  dl::Triangle<double> triangle(&p1, &p2, &p3);
+  std::vector< dl::Point2D<double> > p{{1, 2}, {2, -1}, {-2, 1}};
+  dl::Triangle<double> triangle(&p[0], &p[1], &p[2]);
+  dl::Triangulation<double>(&p[0], p.size());
 
   triangle.print();
 
