@@ -2,6 +2,7 @@
 #define __DELAUNAY_H__
 
 #include <vector>
+#include <array>
 
 
 namespace delaunay
@@ -22,8 +23,6 @@ namespace delaunay
 
     void print() const;
 
-    int containsPoint(Point2D<T> const &p) const;
-
     Point2D<T> *corners[3];
     Triangle<T> *daughters[3];
     Triangle<T> *neighbors[3];
@@ -36,11 +35,16 @@ namespace delaunay
     Triangulation(Point2D<T> const *points, size_t nPoints);
 
   private:
-    Triangle<T> *findTriangle(Point2D<T> const &point);
+    int findTriangle(Point2D<T> const &point);
+    int containsPoint(int iTri, Point2D<T> const &p) const;
 
     std::vector< Point2D<T> > m_points;
-    std::vector< Triangle<T> > m_triangles;
-    delaunay::Point2D<T> m_virtumals[3];
+
+    // Arrays to hold the "triangles"
+    // A value of -1 indicates no data
+    std::vector< std::array<int, 3> > m_corners;  // indices into m_points
+    std::vector< std::array<int, 3> > m_daughters;  // indices into these triangle vectors
+    std::vector< std::array<int, 3> > m_neighbors;  // indices into these triangle vectors
   };
 }
 
