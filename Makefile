@@ -1,6 +1,6 @@
 CXX = /usr/bin/c++
 
-CFLAGS = -std=c++11 -Wall -g -O0
+CFLAGS = -std=c++11 -Wall -Wno-missing-braces -g -O0
 
 OBJS = delaunay.o
 
