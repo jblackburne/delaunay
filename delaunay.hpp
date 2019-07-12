@@ -18,8 +18,8 @@ namespace delaunay
   struct Triangle
   {
     Triangle(Point2D<T> *p1,
-	     Point2D<T> *p2,
-	     Point2D<T> *p3);
+             Point2D<T> *p2,
+             Point2D<T> *p3);
 
     void print() const;
 

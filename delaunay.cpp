@@ -147,8 +147,8 @@ template <typename T>
 bool dl::Triangulation<T>::isDegenerate(int iTri) const
 {
   dl::Point2D<T> const *corners[3] = {&m_points[m_corners[iTri][0]],
-				      &m_points[m_corners[iTri][1]],
-				      &m_points[m_corners[iTri][2]]};
+                                      &m_points[m_corners[iTri][1]],
+                                      &m_points[m_corners[iTri][2]]};
   T crossp = crossprod(*corners[1] - *corners[0], *corners[2] - *corners[1]);
 
   return (crossp <= 0);
@@ -158,8 +158,8 @@ template <typename T>
 int dl::Triangulation<T>::containsPoint(int iTri, dl::Point2D<T> const &p) const
 {
   dl::Point2D<T> const *corners[3] = {&m_points[m_corners[iTri][0]],
-				      &m_points[m_corners[iTri][1]],
-				      &m_points[m_corners[iTri][2]]};
+                                      &m_points[m_corners[iTri][1]],
+                                      &m_points[m_corners[iTri][2]]};
   T crossp[3] = {crossprod(*corners[1] - *corners[0], p - *corners[0]),
                  crossprod(*corners[2] - *corners[1], p - *corners[1]),
                  crossprod(*corners[0] - *corners[2], p - *corners[2])};
@@ -175,6 +175,7 @@ int dl::Triangulation<T>::containsPoint(int iTri, dl::Point2D<T> const &p) const
     return 1;  // inside
   }
 }
+
 
 int main(void)
 {
