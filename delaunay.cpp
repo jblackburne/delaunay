@@ -69,11 +69,8 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
     throw std::runtime_error("Null pointer passed to Triangulation.");
   }
 
-  // Keep a copy of the input set of points
-  m_points.resize(nPoints + 3);  // extra three to hold the root triangle's corners
-  std::copy(points, points + nPoints, &m_points[2]);
-
   // Figure out the bounding box of the input points
+  // Throw an exception if the points are not in general position
   Point2D<T> const *minx, *maxx, *miny, *maxy;
   std::tie(minx, maxx) = std::minmax_element(points, points + nPoints,
                                              [](dl::Point2D<T> const &a,
@@ -81,6 +78,13 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
   std::tie(miny, maxy) = std::minmax_element(points, points + nPoints,
                                              [](dl::Point2D<T> const &a,
                                                 dl::Point2D<T> const &b) {return a.y < b.y;});
+  if (maxx->x == minx->x || maxy->y == miny->y) {
+    throw std::runtime_error("Points are not in general position.");
+  }
+
+  // Keep a copy of the input set of points
+  m_points.resize(nPoints + 3);  // extra three to hold the root triangle's corners
+  std::copy(points, points + nPoints, &m_points[3]);
 
   // Make a root triangle much bigger than the set of points
   dl::Point2D<T> ctr({0.5 * (minx->x + maxx->x), 0.5 * (miny->y + maxy->y)});
