@@ -107,17 +107,26 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
     m_daughters[iMother][1] = static_cast<int>(m_daughters.size() + 1);
     m_daughters[iMother][2] = static_cast<int>(m_daughters.size() + 2);
 
-    m_corners.push_back({iPoint, m_corners[iMother][0], m_corners[iMother][1]});
     m_corners.push_back({iPoint, m_corners[iMother][1], m_corners[iMother][2]});
     m_corners.push_back({iPoint, m_corners[iMother][2], m_corners[iMother][0]});
+    m_corners.push_back({iPoint, m_corners[iMother][0], m_corners[iMother][1]});
 
     m_daughters.push_back({-1, -1, -1});
     m_daughters.push_back({-1, -1, -1});
     m_daughters.push_back({-1, -1, -1});
 
-    m_neighbors.push_back({m_neighbors[iMother][2], m_daughters[iMother][1], m_daughters[iMother][2]});
-    m_neighbors.push_back({m_neighbors[iMother][0], m_daughters[iMother][2], m_daughters[iMother][0]});
-    m_neighbors.push_back({m_neighbors[iMother][1], m_daughters[iMother][0], m_daughters[iMother][1]});
+    m_neighbors.push_back({m_neighbors[iMother][0], m_daughters[iMother][1], m_daughters[iMother][2]});
+    m_neighbors.push_back({m_neighbors[iMother][1], m_daughters[iMother][2], m_daughters[iMother][0]});
+    m_neighbors.push_back({m_neighbors[iMother][2], m_daughters[iMother][0], m_daughters[iMother][1]});
+
+    // Make sure the neighbors know about the new triangles
+    for (int i=0; i<3; ++i) {
+      for (int j=0; j<3; ++j) {
+        if (m_neighbors[m_neighbors[iMother][i]][j] == iMother) {
+          m_neighbors[m_neighbors[iMother][i]][j] = m_daughters[iMother][i];
+        }
+      }
+    }
   }
 }
 
@@ -143,7 +152,7 @@ int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
     }
   }
 
-  // No enclosing "active" (i.e., leaf node) triangle was found
+  // No enclosing non-degenerate leaf node triangle was found
   return -1;
 }
 
