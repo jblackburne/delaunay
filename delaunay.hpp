@@ -36,6 +36,9 @@ namespace delaunay
 
   private:
     int findTriangle(Point2D<T> const &point);
+
+    // Triangle operations
+    bool isDegenerate(int iTri) const;
     int containsPoint(int iTri, Point2D<T> const &p) const;
 
     std::vector< Point2D<T> > m_points;

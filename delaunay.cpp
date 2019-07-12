@@ -133,7 +133,7 @@ int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
           isLeaf = false;
         }
       }
-      if (isLeaf) {
+      if (isLeaf && !isDegenerate(iTri)) {
         return iTri;
       }
     }
@@ -141,6 +141,17 @@ int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
 
   // No enclosing "active" (i.e., leaf node) triangle was found
   return -1;
+}
+
+template <typename T>
+bool dl::Triangulation<T>::isDegenerate(int iTri) const
+{
+  dl::Point2D<T> const *corners[3] = {&m_points[m_corners[iTri][0]],
+				      &m_points[m_corners[iTri][1]],
+				      &m_points[m_corners[iTri][2]]};
+  T crossp = crossprod(*corners[1] - *corners[0], *corners[2] - *corners[1]);
+
+  return (crossp <= 0);
 }
 
 template <typename T>
