@@ -157,6 +157,14 @@ int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
 }
 
 template <typename T>
+bool dl::Triangulation<T>::isLeaf(int iTri) const
+{
+  return (m_daughters[iTri][0] == -1 &&
+          m_daughters[iTri][1] == -1 &&
+          m_daughters[iTri][2] == -1);
+}
+
+template <typename T>
 bool dl::Triangulation<T>::isDegenerate(int iTri) const
 {
   dl::Point2D<T> const *corners[3] = {&m_points[m_corners[iTri][0]],

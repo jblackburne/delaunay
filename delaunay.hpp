@@ -38,6 +38,7 @@ namespace delaunay
     int findTriangle(Point2D<T> const &point);
 
     // Triangle operations
+    bool isLeaf(int iTri) const;
     bool isDegenerate(int iTri) const;
     int containsPoint(int iTri, Point2D<T> const &p) const;
 
