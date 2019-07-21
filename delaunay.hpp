@@ -42,6 +42,11 @@ namespace delaunay
     bool isDegenerate(int iTri) const;
     int containsPoint(int iTri, Point2D<T> const &p) const;
 
+    // Flip-related operations
+    void flip(int iMe, int jThem);
+
+    // We retain a copy of the input points
+    // (plus three extras for the "root" triangle)
     std::vector< Point2D<T> > m_points;
 
     // Arrays to hold the "triangles"

@@ -197,6 +197,59 @@ int dl::Triangulation<T>::containsPoint(int iTri, dl::Point2D<T> const &p) const
   }
 }
 
+template <typename T>
+void dl::Triangulation<T>::flip(int iMe, int jThem)
+{
+  // NOTE: "i" indices are into the triangle vectors
+  //   and "j" indices are into the triplet arrays
+  // Identify which of the neighbor's neighbors I am
+  int iThem = m_neighbors[iMe][jThem];
+  int jMe = -1;
+  for (int j=0; j<3; ++j) {
+    if (m_neighbors[iThem][j] == iMe) {
+      jMe = j;
+    }
+  }
+  assert(jMe >= 0);  // Will be true unless I have a bug in my programming
+
+  // Create two new triangles, daughters to both "me" and "them"
+  m_daughters[iMe][(jThem + 2) % 3] = static_cast<int>(m_daughters.size());
+  m_daughters[iThem][(jMe + 1) % 3] = static_cast<int>(m_daughters.size());
+  m_daughters[iMe][(jThem + 1) % 3] = static_cast<int>(m_daughters.size() + 1);
+  m_daughters[iThem][(jMe + 2) % 3] = static_cast<int>(m_daughters.size() + 1);
+
+  m_corners.push_back({m_corners[iMe][jThem], m_corners[iMe][(jThem + 1) % 3], m_corners[iThem][jMe]});
+  m_corners.push_back({m_corners[iThem][jMe], m_corners[iThem][(jMe + 1) % 3], m_corners[iMe][jThem]});
+
+  m_daughters.push_back({-1, -1, -1});
+  m_daughters.push_back({-1, -1, -1});
+
+  m_neighbors.push_back({m_neighbors[iThem][(iMe + 1) % 3],
+                         m_daughters[iMe][(jThem + 2) % 3],
+                         m_neighbors[iMe][(jThem + 2) % 3]});
+  m_neighbors.push_back({m_neighbors[iMe][(jThem + 1) % 3],
+                         m_daughters[iMe][(jThem + 1) % 3],
+                         m_neighbors[iThem][(iMe + 2) % 3]});
+
+  // Let the other neighbors know about the two new daughters
+  for (int jNeigh=jThem+1; jNeigh<jThem+3; ++jNeigh) {
+    int iNeigh = m_neighbors[iMe][jNeigh % 3];
+    for (int j=0; j<3; ++j) {
+      if (m_neighbors[iNeigh][j] == iMe) {
+        m_neighbors[iNeigh][j] = m_daughters[iMe][jNeigh % 3];
+      }
+    }
+  }
+  for (int jNeigh=jMe+1; jNeigh<jMe+3; ++jNeigh) {
+    int iNeigh = m_neighbors[iThem][jNeigh % 3];
+    for (int j=0; j<3; ++j) {
+      if (m_neighbors[iNeigh][j] == iThem) {
+        m_neighbors[iNeigh][j] = m_daughters[iThem][jNeigh % 3];
+      }
+    }
+  }
+}
+
 
 int main(void)
 {
