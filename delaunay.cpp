@@ -199,9 +199,9 @@ bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
   dl::Point2D<T> ad = m_corners[iThem][0] - m_corners[iMe][jThem];
   dl::Point2D<T> bd = m_corners[iThem][1] - m_corners[iMe][jThem];
   dl::Point2D<T> cd = m_corners[iThem][2] - m_corners[iMe][jThem];
-  //matrix = [[ad.x, ad.y, ad.x*ad.x + ad.y*ad.y],
-  //          [bd.x, bd.y, bd.x*bd.x + bd.y*bd.y],
-  //          [cd.x, cd.y, cd.x*cd.x + cd.y*cd.y]]
+  // matrix = [[ad.x, ad.y, ad.x**2 + ad.y**2],
+  //           [bd.x, bd.y, bd.x**2 + bd.y**2],
+  //           [cd.x, cd.y, cd.x**2 + cd.y**2]]
   T det = (+(ad.x*ad.x + ad.y*ad.y) * (bd.x * cd.y - cd.x * bd.y)
            -(bd.x*bd.x + bd.y*bd.y) * (ad.x * cd.y - cd.x * ad.y)
            +(cd.x*cd.x + cd.y*cd.y) * (ad.x * bd.y - bd.x * ad.y));
