@@ -196,18 +196,15 @@ bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
 
   // If no other contingencies were triggered, use the normal flipping logic
   // Flip if the fourth point falls outside the circumcircle of the other three points
-  dl::Point2D<double> ad({m_corners[iThem][0].x - m_corners[iMe][jThem].x,
-                          m_corners[iThem][0].y - m_corners[iMe][jThem].y});
-  dl::Point2D<double> bd({m_corners[iThem][1].x - m_corners[iMe][jThem].x,
-                          m_corners[iThem][1].y - m_corners[iMe][jThem].y});
-  dl::Point2D<double> cd({m_corners[iThem][2].x - m_corners[iMe][jThem].x,
-                          m_corners[iThem][2].y - m_corners[iMe][jThem].y});
+  dl::Point2D<T> ad = m_corners[iThem][0] - m_corners[iMe][jThem];
+  dl::Point2D<T> bd = m_corners[iThem][1] - m_corners[iMe][jThem];
+  dl::Point2D<T> cd = m_corners[iThem][2] - m_corners[iMe][jThem];
   //matrix = [[ad.x, ad.y, ad.x*ad.x + ad.y*ad.y],
   //          [bd.x, bd.y, bd.x*bd.x + bd.y*bd.y],
   //          [cd.x, cd.y, cd.x*cd.x + cd.y*cd.y]]
-  double det = (+(ad.x*ad.x + ad.y*ad.y) * (bd.x * cd.y - cd.x * bd.y)
-                -(bd.x*bd.x + bd.y*bd.y) * (ad.x * cd.y - cd.x * ad.y)
-                +(cd.x*cd.x + cd.y*cd.y) * (ad.x * bd.y - bd.x * ad.y));
+  T det = (+(ad.x*ad.x + ad.y*ad.y) * (bd.x * cd.y - cd.x * bd.y)
+           -(bd.x*bd.x + bd.y*bd.y) * (ad.x * cd.y - cd.x * ad.y)
+           +(cd.x*cd.x + cd.y*cd.y) * (ad.x * bd.y - bd.x * ad.y));
 
   return det > 0;
 }
