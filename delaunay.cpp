@@ -31,34 +31,6 @@ namespace delaunay
 }
 
 template <typename T>
-dl::Triangle<T>::Triangle(dl::Point2D<T> *p1,
-                          dl::Point2D<T> *p2,
-                          dl::Point2D<T> *p3)
-  : corners{p1, p2, p3},
-    daughters{nullptr, nullptr, nullptr},
-    neighbors{nullptr, nullptr, nullptr}
-{
-  // I'm going to skip the normal nullptr check because this is not user-facing
-
-  // Need to ensure that the points are in general position and ccw order
-  T crossp = crossprod(*corners[1] - *corners[0], *corners[2] - *corners[1]);
-  if (crossp == 0) {
-    throw std::runtime_error("Cannot form a triangle; points not in general position");
-  }
-  if (crossp < 0) {
-    std::swap(corners[0], corners[1]);
-  }
-}
-
-template <typename T>
-void dl::Triangle<T>::print() const
-{
-  std::cout << "Point 1: " << corners[0]->x << " " << corners[0]->y << "\n";
-  std::cout << "Point 2: " << corners[1]->x << " " << corners[1]->y << "\n";
-  std::cout << "Point 3: " << corners[2]->x << " " << corners[2]->y << "\n";
-}
-
-template <typename T>
 dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints)
 {
   // Error checking
@@ -297,10 +269,7 @@ void dl::Triangulation<T>::flip(int iMe, int jThem)
 int main(void)
 {
   std::vector< dl::Point2D<double> > p{{1, 2}, {2, -1}, {-2, 1}};
-  dl::Triangle<double> triangle(&p[0], &p[1], &p[2]);
   dl::Triangulation<double>(&p[0], p.size());
-
-  triangle.print();
 
   return 0;
 }

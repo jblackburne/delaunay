@@ -15,20 +15,6 @@ namespace delaunay
   };
 
   template <typename T>
-  struct Triangle
-  {
-    Triangle(Point2D<T> *p1,
-             Point2D<T> *p2,
-             Point2D<T> *p3);
-
-    void print() const;
-
-    Point2D<T> *corners[3];
-    Triangle<T> *daughters[3];
-    Triangle<T> *neighbors[3];
-  };
-
-  template <typename T>
   class Triangulation
   {
   public:
