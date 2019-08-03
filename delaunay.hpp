@@ -35,7 +35,7 @@ namespace delaunay
     Triangulation(Point2D<T> const *points, size_t nPoints);
 
   private:
-    int findTriangle(Point2D<T> const &point);
+    int findTriangle(Point2D<T> const &point) const;
 
     // Triangle operations
     bool isLeaf(int iTri) const;

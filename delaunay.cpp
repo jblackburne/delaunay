@@ -131,7 +131,7 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
 }
 
 template <typename T>
-int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point)
+int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point) const
 {
   std::stack<int> tristack;
   tristack.push(0);
