@@ -43,6 +43,7 @@ namespace delaunay
     int containsPoint(int iTri, Point2D<T> const &p) const;
 
     // Flip-related operations
+    bool needsFlipped(int iMe, int jThem) const;
     void flip(int iMe, int jThem);
 
     // We retain a copy of the input points

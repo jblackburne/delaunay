@@ -198,6 +198,49 @@ int dl::Triangulation<T>::containsPoint(int iTri, dl::Point2D<T> const &p) const
 }
 
 template <typename T>
+bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
+{
+  const int iThem = m_neighbors[iMe][jThem];
+
+  // Never flip non-leaf triangles
+  if (!isLeaf(iMe) || !isLeaf(iThem)) {
+    return false;
+  }
+
+  // Do not flip if either triangle touches the root triangle
+  if (m_corners[iMe][0] < 3 ||
+      m_corners[iMe][1] < 3 ||
+      m_corners[iMe][2] < 3 ||
+      m_corners[iThem][0] < 3 ||
+      m_corners[iThem][1] < 3 ||
+      m_corners[iThem][2] < 3) {
+    return false;
+  }
+
+  // If either triangle is degenerate, flip for sure
+  if (isDegenerate(iMe) || isDegenerate(iThem)) {
+    return true;
+  }
+
+  // If no other contingencies were triggered, use the normal flipping logic
+  // Flip if the fourth point falls outside the circumcircle of the other three points
+  dl::Point2D<double> ad({m_corners[iThem][0].x - m_corners[iMe][jThem].x,
+                          m_corners[iThem][0].y - m_corners[iMe][jThem].y});
+  dl::Point2D<double> bd({m_corners[iThem][1].x - m_corners[iMe][jThem].x,
+                          m_corners[iThem][1].y - m_corners[iMe][jThem].y});
+  dl::Point2D<double> cd({m_corners[iThem][2].x - m_corners[iMe][jThem].x,
+                          m_corners[iThem][2].y - m_corners[iMe][jThem].y});
+  //matrix = [[ad.x, ad.y, ad.x*ad.x + ad.y*ad.y],
+  //          [bd.x, bd.y, bd.x*bd.x + bd.y*bd.y],
+  //          [cd.x, cd.y, cd.x*cd.x + cd.y*cd.y]]
+  double det = (+(ad.x*ad.x + ad.y*ad.y) * (bd.x * cd.y - cd.x * bd.y)
+                -(bd.x*bd.x + bd.y*bd.y) * (ad.x * cd.y - cd.x * ad.y)
+                +(cd.x*cd.x + cd.y*cd.y) * (ad.x * bd.y - bd.x * ad.y));
+
+  return det > 0;
+}
+
+template <typename T>
 void dl::Triangulation<T>::flip(int iMe, int jThem)
 {
   // NOTE: "i" indices are into the triangle vectors
