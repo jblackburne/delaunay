@@ -30,7 +30,7 @@ namespace delaunay
 
     // Flip-related operations
     bool needsFlipped(int iMe, int jThem) const;
-    void flip(int iMe, int jThem);
+    void flip(int iMe, int jThem, std::stack< std::pair<int, int> > &flipStack);
 
     // We retain a copy of the input points
     // (plus three extras for the "root" triangle)

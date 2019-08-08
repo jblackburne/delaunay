@@ -211,7 +211,7 @@ bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
 }
 
 template <typename T>
-void dl::Triangulation<T>::flip(int iMe, int jThem)
+void dl::Triangulation<T>::flip(int iMe, int jThem, std::stack< std::pair<int, int> > &flipStack)
 {
   // NOTE: "i" indices are into the triangle vectors
   //   and "j" indices are into the triplet arrays
@@ -261,6 +261,12 @@ void dl::Triangulation<T>::flip(int iMe, int jThem)
       }
     }
   }
+
+  // The two new daughters each have two neighbors who they might need to flip with
+  flipStack.push({m_daughters[iMe][(jThem + 2) % 3], 0});
+  flipStack.push({m_daughters[iMe][(jThem + 2) % 3], 2});
+  flipStack.push({m_daughters[iMe][(jThem + 1) % 3], 0});
+  flipStack.push({m_daughters[iMe][(jThem + 1) % 3], 2});
 }
 
 
