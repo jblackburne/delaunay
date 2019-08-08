@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <array>
+#include <stack>
 
 
 namespace delaunay
