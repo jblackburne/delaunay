@@ -197,9 +197,9 @@ bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
 
   // If no other contingencies were triggered, use the normal flipping logic
   // Flip if the fourth point falls outside the circumcircle of the other three points
-  dl::Point2D<T> ad = m_corners[iThem][0] - m_corners[iMe][jThem];
-  dl::Point2D<T> bd = m_corners[iThem][1] - m_corners[iMe][jThem];
-  dl::Point2D<T> cd = m_corners[iThem][2] - m_corners[iMe][jThem];
+  dl::Point2D<T> ad = m_points[m_corners[iThem][0]] - m_points[m_corners[iMe][jThem]];
+  dl::Point2D<T> bd = m_points[m_corners[iThem][1]] - m_points[m_corners[iMe][jThem]];
+  dl::Point2D<T> cd = m_points[m_corners[iThem][2]] - m_points[m_corners[iMe][jThem]];
   // matrix = [[ad.x, ad.y, ad.x**2 + ad.y**2],
   //           [bd.x, bd.y, bd.x**2 + bd.y**2],
   //           [cd.x, cd.y, cd.x**2 + cd.y**2]]
