@@ -100,6 +100,20 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
         }
       }
     }
+
+    // Perform any flips that may be needed
+    std::stack< std::pair<int, int> > flipStack;
+    for (int j=0; j<3; ++j) {
+      flipStack.push({m_daughters[iMother][j], 0});
+    }
+    while (!flipStack.empty()) {
+      int iMe, jThem;
+      std::tie(iMe, jThem) = flipStack.top();
+      flipStack.pop();
+      if (needsFlipped(iMe, jThem)) {
+        flip(iMe, jThem, flipStack);
+      }
+    }
   }
 }
 
