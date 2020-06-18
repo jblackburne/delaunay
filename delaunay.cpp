@@ -204,16 +204,6 @@ bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
     return false;
   }
 
-  // Do not flip if either triangle touches the root triangle
-  if (m_corners[iMe][0] < 3 ||
-      m_corners[iMe][1] < 3 ||
-      m_corners[iMe][2] < 3 ||
-      m_corners[iThem][0] < 3 ||
-      m_corners[iThem][1] < 3 ||
-      m_corners[iThem][2] < 3) {
-    return false;
-  }
-
   // If either triangle is degenerate, flip for sure
   if (isDegenerate(iMe) || isDegenerate(iThem)) {
     return true;
