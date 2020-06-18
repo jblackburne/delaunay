@@ -21,6 +21,8 @@ namespace delaunay
   public:
     Triangulation(Point2D<T> const *points, size_t nPoints);
 
+    void print() const;
+
   private:
     int findTriangle(Point2D<T> const &point) const;
 
