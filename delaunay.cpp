@@ -211,10 +211,72 @@ template <typename T>
 bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
 {
   const int iThem = m_neighbors[iMe][jThem];
+  if (iThem < 0) {
+    return false;
+  }
 
   // Never flip non-leaf triangles
   if (!isLeaf(iMe) || !isLeaf(iThem)) {
     return false;
+  }
+
+  // Figure out which of their neighbors I am
+  int jMe = -1;
+  for (int j=0; j<3; ++j) {
+    if (m_neighbors[iThem][j] == iMe) {
+      jMe = j;
+    }
+  }
+  assert(jMe >= 0);  // Will be true unless I have a bug in my programming
+
+  // Let's find out what the four corners are
+  const int a = m_corners[iThem][jMe];
+  const int b = m_corners[iThem][(jMe + 1) % 3];
+  const int c = m_corners[iThem][(jMe + 2) % 3];
+  const int d = m_corners[iMe][jThem];
+
+  // Catch a few potential bugs
+  assert(m_corners[iMe][(jThem + 2) % 3] == b);  // shared edge is not where I thought?!
+  assert(m_corners[iMe][(jThem + 1) % 3] == c);  // shared edge is not where I thought?!
+  assert(a != d);  // the triangles are identical?!
+  assert(!(b < 3 && c < 3));  // the current shared edge is on the root triangle?!
+
+  // If the four corners form a concave quadrilateral, or a triangle
+  // because one of the new triangles would be degenerate, do not flip
+  T crosspb = crossprod(m_points[d] - m_points[b], m_points[a] - m_points[b]);
+  T crosspc = crossprod(m_points[d] - m_points[c], m_points[a] - m_points[c]);
+  if (crosspb <= 0 || crosspc >= 0) {
+    return false;
+  }
+
+  // If the corners of the root triangle are involved, use some
+  // special rules. Note that these rules depend on having previously
+  // ensured that we have a convex quadrilateral.
+
+  // Special rule 1: If the new edge is on the root triangle, we don't want it
+  if (a < 3 && d < 3) {
+    return false;
+  }
+
+  // Special rule 2 is a weird rule. If we are choosing between an
+  // edge that touches one corner of the root triangle and a new
+  // edge that touches another corner of the root triangle, choose
+  // the edge that touches the corner with the lower index. This is
+  // not for mathematical, angle-maximizing reasons, but just to
+  // ensure that we always choose the same corner in equivalent
+  // situations, simply because the standard circumcircle test is
+  // kind of meaningless given the arbitrary positions of the root
+  // triangle's corners.
+  bool oldEdgeHitsRoot = (b < 3 || c < 3);
+  bool newEdgeHitsRoot = (a < 3 || d < 3);
+  if (oldEdgeHitsRoot && newEdgeHitsRoot) {
+    return (std::min)(a, d) < (std::min)(b, c);
+  }
+
+  // Special rule 3: If the old edge touches the root triangle but the
+  // new edge doesn't, choose the new edge
+  if (oldEdgeHitsRoot || newEdgeHitsRoot) {
+    return oldEdgeHitsRoot;
   }
 
   // If either triangle is degenerate, flip for sure
@@ -224,16 +286,15 @@ bool dl::Triangulation<T>::needsFlipped(int iMe, int jThem) const
 
   // If no other contingencies were triggered, use the normal flipping logic
   // Flip if the fourth point falls outside the circumcircle of the other three points
-  dl::Point2D<T> ad = m_points[m_corners[iThem][0]] - m_points[m_corners[iMe][jThem]];
-  dl::Point2D<T> bd = m_points[m_corners[iThem][1]] - m_points[m_corners[iMe][jThem]];
-  dl::Point2D<T> cd = m_points[m_corners[iThem][2]] - m_points[m_corners[iMe][jThem]];
+  dl::Point2D<T> ad = m_points[a] - m_points[d];
+  dl::Point2D<T> bd = m_points[b] - m_points[d];
+  dl::Point2D<T> cd = m_points[c] - m_points[d];
   // matrix = [[ad.x, ad.y, ad.x**2 + ad.y**2],
   //           [bd.x, bd.y, bd.x**2 + bd.y**2],
   //           [cd.x, cd.y, cd.x**2 + cd.y**2]]
   T det = (+(ad.x*ad.x + ad.y*ad.y) * (bd.x * cd.y - cd.x * bd.y)
            -(bd.x*bd.x + bd.y*bd.y) * (ad.x * cd.y - cd.x * ad.y)
            +(cd.x*cd.x + cd.y*cd.y) * (ad.x * bd.y - bd.x * ad.y));
-
   return det > 0;
 }
 
