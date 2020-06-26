@@ -264,12 +264,12 @@ void dl::Triangulation<T>::flip(int iMe, int jThem, std::stack< std::pair<int, i
   m_daughters.push_back({-1, -1, -1});
   m_daughters.push_back({-1, -1, -1});
 
-  m_neighbors.push_back({m_neighbors[iThem][(iMe + 1) % 3],
-                         m_daughters[iMe][(jThem + 2) % 3],
+  m_neighbors.push_back({m_neighbors[iThem][(jMe + 1) % 3],
+                         m_daughters[iMe][(jThem + 1) % 3],
                          m_neighbors[iMe][(jThem + 2) % 3]});
   m_neighbors.push_back({m_neighbors[iMe][(jThem + 1) % 3],
-                         m_daughters[iMe][(jThem + 1) % 3],
-                         m_neighbors[iThem][(iMe + 2) % 3]});
+                         m_daughters[iMe][(jThem + 2) % 3],
+                         m_neighbors[iThem][(jMe + 2) % 3]});
 
   // Let the other neighbors know about the two new daughters
   for (int jNeigh=jThem+1; jNeigh<jThem+3; ++jNeigh) {
