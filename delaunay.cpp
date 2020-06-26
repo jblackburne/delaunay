@@ -93,9 +93,12 @@ dl::Triangulation<T>::Triangulation(dl::Point2D<T> const *points, size_t nPoints
 
     // Make sure the neighbors know about the new triangles
     for (int i=0; i<3; ++i) {
-      for (int j=0; j<3; ++j) {
-        if (m_neighbors[m_neighbors[iMother][i]][j] == iMother) {
-          m_neighbors[m_neighbors[iMother][i]][j] = m_daughters[iMother][i];
+      const int iNeigh = m_neighbors[iMother][i];
+      if (iNeigh >= 0) {
+        for (int j=0; j<3; ++j) {
+          if (m_neighbors[iNeigh][j] == iMother) {
+            m_neighbors[iNeigh][j] = m_daughters[iMother][i];
+          }
         }
       }
     }
@@ -270,18 +273,22 @@ void dl::Triangulation<T>::flip(int iMe, int jThem, std::stack< std::pair<int, i
 
   // Let the other neighbors know about the two new daughters
   for (int jNeigh=jThem+1; jNeigh<jThem+3; ++jNeigh) {
-    int iNeigh = m_neighbors[iMe][jNeigh % 3];
-    for (int j=0; j<3; ++j) {
-      if (m_neighbors[iNeigh][j] == iMe) {
-        m_neighbors[iNeigh][j] = m_daughters[iMe][jNeigh % 3];
+    const int iNeigh = m_neighbors[iMe][jNeigh % 3];
+    if (iNeigh >= 0) {
+      for (int j=0; j<3; ++j) {
+        if (m_neighbors[iNeigh][j] == iMe) {
+          m_neighbors[iNeigh][j] = m_daughters[iMe][jNeigh % 3];
+        }
       }
     }
   }
   for (int jNeigh=jMe+1; jNeigh<jMe+3; ++jNeigh) {
-    int iNeigh = m_neighbors[iThem][jNeigh % 3];
-    for (int j=0; j<3; ++j) {
-      if (m_neighbors[iNeigh][j] == iThem) {
-        m_neighbors[iNeigh][j] = m_daughters[iThem][jNeigh % 3];
+    const int iNeigh = m_neighbors[iThem][jNeigh % 3];
+    if (iNeigh >= 0) {
+      for (int j=0; j<3; ++j) {
+        if (m_neighbors[iNeigh][j] == iThem) {
+          m_neighbors[iNeigh][j] = m_daughters[iThem][jNeigh % 3];
+        }
       }
     }
   }
