@@ -128,6 +128,16 @@ void dl::Triangulation<T>::print() const
 }
 
 template <typename T>
+void dl::Triangulation<T>::printAll() const
+{
+  for (size_t i=0; i<m_corners.size(); ++i) {
+    bool active = (isLeaf(i) && m_corners[i][0] > 2 && m_corners[i][1] > 2 && m_corners[i][2] > 2);
+    std::cout << "Triangle " << i << " (" << (active ? "" : "in") << "active) corner indices: " <<
+      m_corners[i][0] - 3 << " " << m_corners[i][1] - 3 << " " << m_corners[i][2] - 3 << "\n";
+  }
+}
+
+template <typename T>
 int dl::Triangulation<T>::findTriangle(dl::Point2D<T> const &point) const
 {
   std::stack<int> tristack;
