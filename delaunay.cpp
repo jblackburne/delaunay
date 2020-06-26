@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
+#include <vector>
 #include <tuple>
 #include <cmath>
 #include <cassert>
@@ -364,8 +366,18 @@ void dl::Triangulation<T>::flip(int iMe, int jThem, std::stack< std::pair<int, i
 
 int main(void)
 {
-  std::vector< dl::Point2D<double> > p{{1, 2}, {2, -1}, {-2, 1}};
-  dl::Triangulation<double> t(&p[0], p.size());
+  std::ifstream in("points.bin", std::ios::binary);
+  in.seekg(0, std::ios_base::end);
+  int nPoints = in.tellg() / (2 * sizeof(double));
+  in.seekg(0, std::ios_base::beg);
+  std::vector< dl::Point2D<double> > points(nPoints);
+  in.read(reinterpret_cast<char *>(&points[0]), nPoints * 2 * sizeof(double));
+
+  for (auto &p: points) {
+    std::cout << p.x << " " << p.y << "\n";
+  }
+
+  dl::Triangulation<double> t(&points[0], points.size());
   t.print();
 
   return 0;
